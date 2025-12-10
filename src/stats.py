@@ -1,6 +1,5 @@
 import requests
 import os
-import re
 import hashlib
 from lxml import etree
 
@@ -53,6 +52,7 @@ def force_close_file(data, cache_comment):
 def loc_counter_one_repo(owner, repo_name, data, cache_comment, history, additional_total, deletion_total, commits):
   """recursively calls recusrive_loc since graphql is limited to 100 commits at a time
   only adds the LOC value of commits authored by me"""
+  global OWNER_ID
   for edge in history['edges']:
     if edge['node']['author']['user'] and edge['node']['author']['user']['id'] == OWNER_ID:
       commits+=1  
@@ -65,6 +65,7 @@ def loc_counter_one_repo(owner, repo_name, data, cache_comment, history, additio
 
 def recursive_loc(owner, repo_name, data, cache_comment, additional_total=0, deletion_total=0, commits=0, cursor=None):
   """Uses  GraphQL and cursor pagination to fetch 100 commits from a repository at a time"""
+  global OWNER_ID
   query = '''
   query($repo_name: String!, $owner: String!, $cursor: String){
     repository(name: $repo_name, owner: $owner){
@@ -127,6 +128,7 @@ def cache_builder(edges, comment_size, force_cache, loc_add=0, loc_del=0):
   """checks each repository in edges to see if it has been updated since the last time it was cached
   if it has been cached, run recursive_loc on that repository to update the LOC count
   """
+  global OWNER_ID
   filename = 'cache/' + hashlib.sha256(USER_NAME.encode('utf-8')).hexdigest() + '.txt'
   try:
     with open(filename, 'r') as f:
@@ -237,12 +239,14 @@ def get_repo_count():
 
 def find_and_replace(root, element_id, new_text):
   """finds an element by its ID in SVG file and replaces its text with new_text"""
-  namespaces = {'svg': 'http://www.w3.org/2000/svg'}
-  element = root.find(f".//*[@id='{element_id}']", namespaces)
-  if element is None:
-    element = root.find(f".//*[@id='{element_id}']")
+  element = root.find(f".//*[@id='{element_id}']")
   if element is not None:
     element.text = str(new_text)
+    print(f"  Updated {element_id} to: {new_text}")
+    return True
+  else:
+    print(f"  WARNING: Element with id '{element_id}' not found!")
+    return False
 
 def svg_format(root, element_id, new_text, length=0):
   """updates and formats text of elements. modifies the amount of dots in between key and value to align everything"""
@@ -260,6 +264,10 @@ def svg_format(root, element_id, new_text, length=0):
 
 def svg_overwriter(filename, commit_data, loc_data):
   """parse svg files and updates their elements with latest stats"""
+  print(f"\nUpdating {filename}...")
+  print(f"  Commit data: {commit_data}")
+  print(f"  LOC data: add={loc_data[0]}, del={loc_data[1]}, total={loc_data[2]}")
+  
   parser = etree.XMLParser(remove_blank_text=False)
   tree = etree.parse(filename, parser)
   root = tree.getroot()
@@ -268,6 +276,7 @@ def svg_overwriter(filename, commit_data, loc_data):
   svg_format(root, 'loc_add', loc_data[0])
   svg_format(root, 'loc_del', loc_data[1], 0)
   tree.write(filename, encoding='utf-8', xml_declaration=True)
+  print(f"  Wrote changes to {filename}")
   
 def commit_counter(comment_size):
   """counts my total commits, using cache file"""
@@ -295,10 +304,9 @@ def user_getter(username):
   return response.json()['data']['user']['id'], response.json()['data']['user']['createdAt']
 
 if __name__ == "__main__":
-  OWNER_ID, created_at = user_getter(USER_NAME)  
+  global OWNER_ID
+  OWNER_ID, created_at = user_getter(USER_NAME)
   loc_data = loc_query(['OWNER', 'COLLABORATOR'])
   commit_count = commit_counter(0)
-  
-  # Update both light and dark mode SVGs
   svg_overwriter('svg/light_stats.svg', commit_count, loc_data)
   svg_overwriter('svg/dark_stats.svg', commit_count, loc_data)
