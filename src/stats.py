@@ -258,18 +258,16 @@ def svg_format(root, element_id, new_text, length=0):
     dot_string = ' ' + ('.' * just_len) + ' '
   find_and_replace(root, f"{element_id}_dots", dot_string)
 
-def svg_overwriter(filename, commit_data, repo_data, contrib_data, loc_data):
+def svg_overwriter(filename, commit_data, loc_data):
   """parse svg files and updates their elements with latest stats"""
   parser = etree.XMLParser(remove_blank_text=False)
   tree = etree.parse(filename, parser)
   root = tree.getroot()
   svg_format(root, 'commit_data', commit_data, 0)
-  svg_format(root, 'repo_data', repo_data, 0)
-  svg_format(root, 'contrib_data', contrib_data)
   svg_format(root, 'loc_data', loc_data[2], 0)
   svg_format(root, 'loc_add', loc_data[0])
   svg_format(root, 'loc_del', loc_data[1], 0)
-  tree.write(filename, encoding ='utf-8', xml_declaration=True)
+  tree.write(filename, encoding='utf-8', xml_declaration=True)
   
 def commit_counter(comment_size):
   """counts my total commits, using cache file"""
@@ -298,11 +296,9 @@ def user_getter(username):
 
 if __name__ == "__main__":
   OWNER_ID, created_at = user_getter(USER_NAME)  
-  repo_count = get_repo_count()
-  contrib_count = get_contrib_count()  
   loc_data = loc_query(['OWNER', 'COLLABORATOR'])
   commit_count = commit_counter(0)
   
   # Update both light and dark mode SVGs
-  svg_overwriter('svg/light_stats.svg', commit_count, repo_count, contrib_count, loc_data)
-  svg_overwriter('svg/dark_stats.svg', commit_count, repo_count, contrib_count, loc_data)
+  svg_overwriter('svg/light_stats.svg', commit_count, loc_data)
+  svg_overwriter('svg/dark_stats.svg', commit_count, loc_data)
