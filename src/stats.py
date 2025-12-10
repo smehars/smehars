@@ -304,7 +304,6 @@ def user_getter(username):
   return response.json()['data']['user']['id'], response.json()['data']['user']['createdAt']
 
 if __name__ == "__main__":
-  global OWNER_ID
   OWNER_ID, created_at = user_getter(USER_NAME)
   loc_data = loc_query(['OWNER', 'COLLABORATOR'])
   commit_count = commit_counter(0)
