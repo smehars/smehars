@@ -302,4 +302,7 @@ if __name__ == "__main__":
   contrib_count = get_contrib_count()  
   loc_data = loc_query(['OWNER', 'COLLABORATOR'])
   commit_count = commit_counter(0)
-  svg_overwriter('svg/stats.svg', commit_count, repo_count, contrib_count, loc_data)
+  
+  # Update both light and dark mode SVGs
+  svg_overwriter('svg/light_stats.svg', commit_count, repo_count, contrib_count, loc_data)
+  svg_overwriter('svg/dark_stats.svg', commit_count, repo_count, contrib_count, loc_data)

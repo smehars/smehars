@@ -8,15 +8,15 @@ font-display: swap;
 -webkit-size-adjust: 109%;
 size-adjust: 109%;
 }
-.key {fill: #ffa657;}
-.value {fill: #a5d6ff;}
+.key {fill: #FFC8DD;}
+.value {fill: #A2D2FF;}
 .addColor {fill: #3fb950;}
 .delColor {fill: #f85149;}
-.cc {fill: #616e7f;}
+.cc {fill: #CDB4DB;}
 text, tspan {white-space: pre;}
 </style>
-<rect width="625px" height="290px" fill="#f6f8fa" rx="15"/>
-<text x="30" y="40" fill="#24292f">
+<rect width="625px" height="290px" fill="#1a1625" rx="15"/>
+<text x="30" y="40" fill="#e8e0f0">
 <tspan x="30" y="40">smehars</tspan> -—————————————————————————————————————————————————-
 <tspan x="30" y="60" class="cc">. </tspan><tspan class="key">university</tspan>:<tspan class="cc"> ..................... </tspan><tspan class="value">Simon Fraser University</tspan>
 <tspan x="30" y="80" class="cc">. </tspan><tspan class="key">languages</tspan>:<tspan class="cc"> .... </tspan><tspan class="value">C++/C, Python, Javascript, Java, HTML/CSS</tspan>
