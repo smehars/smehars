@@ -1,8 +1,8 @@
 # hello, i'm Mehar 👋
-
-<a href="https://github.com/smehars/smehars">
-  <picture>
-    <img alt="stats" src="svg/stats.svg">
+<a align="center" href="https://github.com/smehars/smehars">
+  <picture align="center">
+    <source media="(prefers-color-scheme: dark)" srcset="svg/dark_stats.svg">
+    <img alt="stats" src="svg/light_stats.svg">
   </picture>
 </a>
 
