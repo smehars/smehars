@@ -335,12 +335,12 @@ def svg_overwriter(filename, commit_count):
   tree = etree.parse(filename, parser)
   root = tree.getroot()
   
-  svg_format(root, 'commits', commit_count, 8)
-  svg_format(root, 'stars', get_star_count(), 11)
-  svg_format(root, 'prs', get_pr_count(), 13)
-  svg_format(root, 'issues', get_issue_count(), 9)
-  svg_format(root, 'contribs', get_contribution_count(), 2)
-  svg_format(root, 'repos_contrib', get_contrib_count(), 1)
+  svg_format(root, 'commits', commit_count, 5)
+  svg_format(root, 'stars', get_star_count(), 5)
+  svg_format(root, 'prs', get_pr_count(), 5)
+  svg_format(root, 'issues', get_issue_count(), 5)
+  svg_format(root, 'contribs', get_contribution_count(), 0)
+  svg_format(root, 'repos_contrib', get_contrib_count(), 0)
   
   tree.write(filename, encoding='utf-8', xml_declaration=True)
   print(f"  Wrote changes to {filename}")
