@@ -305,7 +305,7 @@ def user_getter(username):
 
 if __name__ == "__main__":
   OWNER_ID, created_at = user_getter(USER_NAME)
-  loc_data = loc_query(['OWNER', 'COLLABORATOR'])
+  loc_data = loc_query(['OWNER', 'COLLABORATOR', 'ORGANIZATION_MEMBER'])
   commit_count = commit_counter(0)
   svg_overwriter('svg/light_stats.svg', commit_count, loc_data)
   svg_overwriter('svg/dark_stats.svg', commit_count, loc_data)
