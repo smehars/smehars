@@ -28,7 +28,7 @@ jobs:
               run: python -m pip install -r cache/requirements.txt
             - name: update README stats
               env:
-                ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }} # github token
+                ACCESS_TOKEN: ${{ secrets.STATS_PAT_NEW }} # github token
               run: python src/stats.py
             - name: commit and push
               run: |-
