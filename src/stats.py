@@ -237,6 +237,71 @@ def get_repo_count():
   response = run_query("get_repo_count", query, variables)
   return response.json()['data']['user']['repositories']['totalCount']
 
+def get_star_count():
+  """fetches the total number of stars across all repositories the user owns"""
+  query = '''
+  query($login: String!) {
+    user(login: $login) {
+      repositories(ownerAffiliations: OWNER, first: 100) {
+        nodes {
+          stargazerCount
+        }
+      }
+    }
+  }
+  '''
+  variables = {'login': USER_NAME}
+  response = run_query("get_star_count", query, variables)
+  repos = response.json()['data']['user']['repositories']['nodes']
+  return sum(repo['stargazerCount'] for repo in repos)
+
+def get_pr_count():
+  """fetches the total number of pull requests the user has created"""
+  query = '''
+  query($login: String!) {
+    user(login: $login) {
+      pullRequests {
+        totalCount
+      }
+    }
+  }
+  '''
+  variables = {'login': USER_NAME}
+  response = run_query("get_pr_count", query, variables)
+  return response.json()['data']['user']['pullRequests']['totalCount']
+
+def get_issue_count():
+  """fetches the total number of issues the user has created"""
+  query = '''
+  query($login: String!) {
+    user(login: $login) {
+      issues {
+        totalCount
+      }
+    }
+  }
+  '''
+  variables = {'login': USER_NAME}
+  response = run_query("get_issue_count", query, variables)
+  return response.json()['data']['user']['issues']['totalCount']
+
+def get_contribution_count():
+  """fetches the total contributions for the current year"""
+  query = '''
+  query($login: String!) {
+    user(login: $login) {
+      contributionsCollection {
+        contributionCalendar {
+          totalContributions
+        }
+      }
+    }
+  }
+  '''
+  variables = {'login': USER_NAME}
+  response = run_query("get_contribution_count", query, variables)
+  return response.json()['data']['user']['contributionsCollection']['contributionCalendar']['totalContributions']
+
 def find_and_replace(root, element_id, new_text):
   """finds an element by its ID in SVG file and replaces its text with new_text"""
   element = root.find(f".//*[@id='{element_id}']")
@@ -262,22 +327,24 @@ def svg_format(root, element_id, new_text, length=0):
     dot_string = ' ' + ('.' * just_len) + ' '
   find_and_replace(root, f"{element_id}_dots", dot_string)
 
-def svg_overwriter(filename, commit_data, loc_data):
+def svg_overwriter(filename, commit_count):
   """parse svg files and updates their elements with latest stats"""
   print(f"\nUpdating {filename}...")
-  print(f"  Commit data: {commit_data}")
-  print(f"  LOC data: add={loc_data[0]}, del={loc_data[1]}, total={loc_data[2]}")
   
   parser = etree.XMLParser(remove_blank_text=False)
   tree = etree.parse(filename, parser)
   root = tree.getroot()
-  svg_format(root, 'commit_data', commit_data, 0)
-  svg_format(root, 'loc_data', loc_data[2], 0)
-  svg_format(root, 'loc_add', loc_data[0])
-  svg_format(root, 'loc_del', loc_data[1], 0)
+  
+  svg_format(root, 'commits', commit_count, 8)
+  svg_format(root, 'stars', get_star_count(), 11)
+  svg_format(root, 'prs', get_pr_count(), 13)
+  svg_format(root, 'issues', get_issue_count(), 9)
+  svg_format(root, 'contribs', get_contribution_count(), 2)
+  svg_format(root, 'repos_contrib', get_contrib_count(), 1)
+  
   tree.write(filename, encoding='utf-8', xml_declaration=True)
   print(f"  Wrote changes to {filename}")
-  
+
 def commit_counter(comment_size):
   """counts my total commits, using cache file"""
   total_commits = 0
@@ -305,7 +372,8 @@ def user_getter(username):
 
 if __name__ == "__main__":
   OWNER_ID, created_at = user_getter(USER_NAME)
-  loc_data = loc_query(['OWNER', 'COLLABORATOR', 'ORGANIZATION_MEMBER'], force_cache=True)
+  loc_data = loc_query(['OWNER', 'COLLABORATOR', 'ORGANIZATION_MEMBER'])
   commit_count = commit_counter(0)
-  svg_overwriter('svg/light_stats.svg', commit_count, loc_data)
-  svg_overwriter('svg/dark_stats.svg', commit_count, loc_data)
+  
+  svg_overwriter('svg/light_stats.svg', commit_count)
+  svg_overwriter('svg/dark_stats.svg', commit_count)
